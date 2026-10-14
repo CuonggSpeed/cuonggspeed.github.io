@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>title</key>
+	<string>ImageCC</string>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Ảnh hiển thị trong Trung tâm điều khiển</string>
+			<key>footerText</key>
+			<string>Chọn ảnh từ thư viện. Sau đó bật module ImageCC trong Cài đặt → Trung tâm điều khiển, rồi chạm vào ô module để xem ảnh.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Chọn ảnh từ thư viện</string>
+			<key>action</key>
+			<string>pickImage</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Xóa ảnh</string>
+			<key>action</key>
+			<string>clearImage</string>
+		</dict>
+	</array>
+</dict>
+</plist>
