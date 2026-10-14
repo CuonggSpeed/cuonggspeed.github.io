@@ -1,28 +1,45 @@
 name: Build repo
+
 on:
   workflow_dispatch:
   push:
     branches: [main]
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get install -y dpkg-dev bzip2
-      - name: Lay TurboAnim
+
+      - name: Setup Theos
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev bzip2 make git
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+
+      - name: Build Tweak (ImageCC và các tweak khác)
         run: |
           mkdir -p debs
-          curl -fsSL https://cuonggspeed.github.io/TurboAnim/Packages -o tp
-          f=$(grep '^Filename:' tp | head -1 | cut -d' ' -f2)
-          curl -fsSL "https://cuonggspeed.github.io/TurboAnim/$f" -o "debs/$(basename $f)"
-      - name: Make repo
+          for dir */; do
+            if [ -f "${dir}Makefile" ]; then
+              echo "Đang build tweak trong thư mục: $dir"
+              cd "$dir"
+              make THEOS=~/theos package
+              find . -name "*.deb" -exec cp {} ../debs/ \;
+              cd ..
+            fi
+          done
+
+      - name: Make repo Packages & Release
         run: |
           mkdir site
           cp -r debs site/debs
@@ -31,9 +48,11 @@ jobs:
           bzip2 -k Packages
           printf 'Origin: CuonggSpeed Repo\nLabel: CuonggSpeed Repo\nSuite: stable\nVersion: 1.0\nCodename: ios\nArchitectures: iphoneos-arm64e iphoneos-arm64 iphoneos-arm\nComponents: main\nDescription: Tweak ca nhan\n' > Release
           echo "CuonggSpeed repo" > index.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
