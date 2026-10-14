@@ -1,8 +1,0 @@
-Package: com.cuonggspeed.imagecc
-Name: ImageCC
-Version: 0.0.1
-Architecture: iphoneos-arm
-Description: Control Center module hien thi anh chon trong Cai dat
-Maintainer: me
-Author: me
-Section: Tweaks
