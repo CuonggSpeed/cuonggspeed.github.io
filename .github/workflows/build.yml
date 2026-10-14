@@ -1,0 +1,45 @@
+name: Build repo
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y dpkg-dev bzip2
+      - name: Lay TurboAnim
+        run: |
+          mkdir -p debs
+          curl -fsSL https://cuonggspeed.github.io/TurboAnim/Packages -o tp
+          f=$(grep '^Filename:' tp | head -1 | cut -d' ' -f2)
+          curl -fsSL "https://cuonggspeed.github.io/TurboAnim/$f" -o "debs/$(basename $f)"
+      - name: Make repo
+        run: |
+          mkdir site
+          cp -r debs site/debs
+          cd site
+          dpkg-scanpackages -m debs /dev/null > Packages
+          bzip2 -k Packages
+          printf 'Origin: CuonggSpeed Repo\nLabel: CuonggSpeed Repo\nSuite: stable\nVersion: 1.0\nCodename: ios\nArchitectures: iphoneos-arm64e iphoneos-arm64 iphoneos-arm\nComponents: main\nDescription: Tweak ca nhan\n' > Release
+          echo "CuonggSpeed repo" > index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4
